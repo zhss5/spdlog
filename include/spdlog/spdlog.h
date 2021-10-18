@@ -21,20 +21,6 @@
 
 namespace spdlog {
 
-using default_factory = synchronous_factory;
-
-// Create a logger with a templated sink type
-// The logger's level, formatter and flush level will be set according the
-// global settings.
-//
-// Example:
-//   spdlog::create<daily_file_sink_st>("logger_name", "dailylog_filename", 11, 59);
-template<typename Sink, typename... SinkArgs>
-inline std::shared_ptr<spdlog::logger> create(std::string logger_name, SinkArgs &&... sink_args)
-{
-    return default_factory::create<Sink>(std::move(logger_name), std::forward<SinkArgs>(sink_args)...);
-}
-
 // API for using default logger (stdout_color_mt),
 // e.g: spdlog::info("Message {}", 1);
 //

@@ -12,6 +12,7 @@
 #include <string>
 #include <iomanip>
 #include <stdlib.h>
+#include <memory>
 
 #define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_DEBUG
 

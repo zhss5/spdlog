@@ -11,13 +11,15 @@ TEST_CASE("simple_file_logger", "[simple_logger]]")
     prepare_logdir();
     spdlog::filename_t filename = SPDLOG_FILENAME_T(SIMPLE_LOG);
 
-    auto logger = spdlog::create<spdlog::sinks::basic_file_sink_mt>("logger", filename);
-    logger->set_formatter(make_unique<spdlog::pattern_formatter>("%v"));
+    auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(filename);
+    spdlog::logger logger("logger", sink);
 
-    logger->info("Test message {}", 1);
-    logger->info("Test message {}", 2);
+    logger.set_formatter(make_unique<spdlog::pattern_formatter>("%v"));
 
-    logger->flush();
+    logger.info("Test message {}", 1);
+    logger.info("Test message {}", 2);
+
+    logger.flush();
     require_message_count(SIMPLE_LOG, 2);
     using spdlog::details::os::default_eol;
     REQUIRE(file_contents(SIMPLE_LOG) == fmt::format("Test message 1{}Test message 2{}", default_eol, default_eol));
@@ -28,15 +30,17 @@ TEST_CASE("flush_on", "[flush_on]]")
     prepare_logdir();
     spdlog::filename_t filename = SPDLOG_FILENAME_T(SIMPLE_LOG);
 
-    auto logger = spdlog::create<spdlog::sinks::basic_file_sink_mt>("logger", filename);
-    logger->set_formatter(make_unique<spdlog::pattern_formatter>("%v"));
-    logger->set_level(spdlog::level::trace);
-    logger->flush_on(spdlog::level::info);
-    logger->trace("Should not be flushed");
+    auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(filename);
+
+    spdlog::logger logger("logger", sink);
+    logger.set_formatter(make_unique<spdlog::pattern_formatter>("%v"));
+    logger.set_level(spdlog::level::trace);
+    logger.flush_on(spdlog::level::info);
+    logger.trace("Should not be flushed");
     REQUIRE(count_lines(SIMPLE_LOG) == 0);
 
-    logger->info("Test message {}", 1);
-    logger->info("Test message {}", 2);
+    logger.info("Test message {}", 1);
+    logger.info("Test message {}", 2);
 
     require_message_count(SIMPLE_LOG, 3);
     using spdlog::details::os::default_eol;

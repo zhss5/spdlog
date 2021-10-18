@@ -27,11 +27,13 @@ TEST_CASE("default_error_handler", "[errors]]")
     prepare_logdir();
     spdlog::filename_t filename = SPDLOG_FILENAME_T(SIMPLE_LOG);
 
-    auto logger = spdlog::create<spdlog::sinks::basic_file_sink_mt>("test-error", filename, true);
-    logger->set_formatter(make_unique<spdlog::pattern_formatter>("%v"));
-    logger->info(fmt::runtime("Test message {} {}"), 1);
-    logger->info("Test message {}", 2);
-    logger->flush();
+
+    auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(filename, true);
+    spdlog::logger logger("test-error", std::move(sink));
+    logger.set_formatter(make_unique<spdlog::pattern_formatter>("%v"));
+    logger.info(fmt::runtime("Test message {} {}"), 1);
+    logger.info("Test message {}", 2);
+    logger.flush();
 
     using spdlog::details::os::default_eol;
     REQUIRE(file_contents(SIMPLE_LOG) == fmt::format("Test message 2{}", default_eol));
@@ -44,7 +46,8 @@ TEST_CASE("custom_error_handler", "[errors]]")
 {
     prepare_logdir();
     spdlog::filename_t filename = SPDLOG_FILENAME_T(SIMPLE_LOG);
-    auto logger = spdlog::create<spdlog::sinks::basic_file_sink_mt>("logger", filename, true);
+    auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(filename, true);
+    auto logger = std::make_shared<spdlog::logger>("logger", std::move(sink));
     logger->flush_on(spdlog::level::info);
     logger->set_error_handler([=](const std::string &) { throw custom_ex(); });
     logger->info("Good message #1");
@@ -56,16 +59,16 @@ TEST_CASE("custom_error_handler", "[errors]]")
 
 TEST_CASE("default_error_handler2", "[errors]]")
 {
-    auto logger = spdlog::create<failing_sink>("failed_logger");
-    logger->set_error_handler([=](const std::string &) { throw custom_ex(); });
-    REQUIRE_THROWS_AS(logger->info("Some message"), custom_ex);
+    spdlog::logger logger("failed-logger", std::make_shared<failing_sink>());
+    logger.set_error_handler([=](const std::string &) { throw custom_ex(); });
+    REQUIRE_THROWS_AS(logger.info("Some message"), custom_ex);
 }
 
 TEST_CASE("flush_error_handler", "[errors]]")
 {
-    auto logger = spdlog::create<failing_sink>("failed_logger");
-    logger->set_error_handler([=](const std::string &) { throw custom_ex(); });
-    REQUIRE_THROWS_AS(logger->flush(), custom_ex);
+    spdlog::logger logger("failed-logger", std::make_shared<failing_sink>());
+    logger.set_error_handler([=](const std::string &) { throw custom_ex(); });
+    REQUIRE_THROWS_AS(logger.flush(), custom_ex);
 }
 
 TEST_CASE("async_error_handler", "[errors]]")

@@ -27,15 +27,6 @@ TEST_CASE("default_error_handler", "[errors]]")
     prepare_logdir();
     spdlog::filename_t filename = SPDLOG_FILENAME_T(SIMPLE_LOG);
 
-<<<<<<< HEAD
-
-    auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(filename, true);
-    spdlog::logger logger("test-error", std::move(sink));
-    logger.set_formatter(make_unique<spdlog::pattern_formatter>("%v"));
-    logger.info(fmt::runtime("Test message {} {}"), 1);
-    logger.info("Test message {}", 2);
-    logger.flush();
-=======
     auto logger = spdlog::create<spdlog::sinks::basic_file_sink_mt>("test-error", filename, true);
     logger->set_pattern("%v");
 #ifdef SPDLOG_USE_STD_FORMAT
@@ -45,7 +36,13 @@ TEST_CASE("default_error_handler", "[errors]]")
 #endif
     logger->info("Test message {}", 2);
     logger->flush();
->>>>>>> v1.x
+
+    auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(filename, true);
+    spdlog::logger logger("test-error", std::move(sink));
+    logger.set_formatter(make_unique<spdlog::pattern_formatter>("%v"));
+    logger.info(fmt::runtime("Test message {} {}"), 1);
+    logger.info("Test message {}", 2);
+    logger.flush();
 
     using spdlog::details::os::default_eol;
     REQUIRE(file_contents(SIMPLE_LOG) == spdlog::fmt_lib::format("Test message 2{}", default_eol));

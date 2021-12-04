@@ -22,7 +22,7 @@ void user_defined_example();
 void err_handler_example();
 void syslog_example();
 void udp_example();
-void custom_flags_example();
+void custom_formatter_flag_example();
 void file_events_example();
 void replace_default_logger_example();
 
@@ -74,7 +74,7 @@ int main(int, char *[])
         trace_example();
         stopwatch_example();
         udp_example();
-        custom_flags_example();
+        custom_formatter_flag_example();
     }
 
     // Exceptions will only be thrown upon failed logger or sink construction (not during logging).
@@ -292,7 +292,7 @@ class my_formatter_flag : public spdlog::custom_flag_formatter
 public:
     void format(const spdlog::details::log_msg &, const std::tm &, spdlog::memory_buf_t &dest) override
     {
-        std::string some_txt = "custom-flag";
+        std::string some_txt = "my-flag";
         dest.append(some_txt.data(), some_txt.data() + some_txt.size());
     }
 
@@ -302,10 +302,11 @@ public:
     }
 };
 
-void custom_flags_example()
-{
+void custom_formatter_flag_example()
+{    
     auto formatter = make_unique<spdlog::pattern_formatter>("");
-    formatter->add_flag<my_formatter_flag>('*').set_pattern("[%n] [%*] [%^%l%$] %v");
-    spdlog::set_formatter(std::move(formatter));
+    formatter->add_flag<my_formatter_flag>('*').set_pattern("[%*] [%^%l%$] %v");
+    spdlog::default_logger()->set_formatter(std::move(formatter));
+    spdlog::info("Custom flag example");
 }
 

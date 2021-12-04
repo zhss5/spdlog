@@ -373,6 +373,36 @@ $ export SPDLOG_LEVEL=info,mylogger=trace
 $ ./example
 ```
 
+
+---
+#### Log file open/close event handlers
+```c++
+// You can get callbacks from spdlog before/after log file has been opened or closed. 
+// This is useful for cleanup procedures or for adding someting the start/end of the log files.
+void file_events_example()
+{
+    // pass the spdlog::file_event_handlers to file sinks for open/close log file notifications
+    spdlog::file_event_handlers handlers;
+    handlers.before_open = [](spdlog::filename_t filename) { spdlog::info("Before opening {}", filename); };
+    handlers.after_open = [](spdlog::filename_t filename, std::FILE *fstream) { fputs("After opening\n", fstream); };
+    handlers.before_close = [](spdlog::filename_t filename, std::FILE *fstream) { fputs("Before closing\n", fstream); };
+    handlers.after_close = [](spdlog::filename_t filename) { spdlog::info("After closing {}", filename); };
+    auto my_logger = spdlog::basic_logger_st("some_logger", "logs/events-sample.txt", true, handlers);        
+}
+```
+
+---
+#### Replace the Default Logger
+```c++
+void replace_default_logger_example()
+{
+    auto new_logger = spdlog::basic_logger_mt("new_default_logger", "logs/new-default-log.txt", true);
+    spdlog::set_default_logger(new_logger);
+    spdlog::set_level(spdlog::level::trace); 
+    spdlog::trace("This message should appear..");
+}
+```
+
 ---
 ## Benchmarks
 

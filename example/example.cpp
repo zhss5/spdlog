@@ -14,6 +14,7 @@ void rotating_example();
 void daily_example();
 void async_example();
 void binary_example();
+void vector_example();
 void stopwatch_example();
 void trace_example();
 void multi_sink_example();
@@ -22,6 +23,8 @@ void err_handler_example();
 void syslog_example();
 void udp_example();
 void custom_flags_example();
+void file_events_example();
+void replace_default_logger_example();
 
 #include "spdlog/spdlog.h"
 #include "spdlog/default_formatter.h"
@@ -64,6 +67,7 @@ int main(int, char *[])
         daily_example();
         async_example();
         binary_example();
+        vector_example();
         multi_sink_example();
         user_defined_example();
         err_handler_example();
@@ -95,7 +99,7 @@ void stdout_logger_example()
 void basic_example()
 {
     // Create basic file logger (not rotated).
-    auto my_logger = spdlog::basic_logger_mt("file_logger", "logs/basic-log.txt");
+    auto my_logger = spdlog::basic_logger_mt("file_logger", "logs/basic-log.txt", true);
 }
 
 #include "spdlog/sinks/rotating_file_sink.h"
@@ -174,6 +178,15 @@ void binary_example()
     // logger->info("uppercase, no delimiters, no position info: {:Xsp}", spdlog::to_hex(buf));
     // logger->info("hexdump style: {:a}", spdlog::to_hex(buf));
     // logger->info("hexdump style, 20 chars per line {:a}", spdlog::to_hex(buf, 20));
+}
+
+// Log a vector of numbers
+
+#include "spdlog/fmt/bundled/ranges.h"
+void vector_example()
+{
+    std::vector<int> vec = {1, 2, 3};
+    spdlog::info("Vector example: {}", vec);
 }
 
 // Compile time log levels.
@@ -293,5 +306,6 @@ void custom_flags_example()
 {
     auto formatter = make_unique<spdlog::pattern_formatter>("");
     formatter->add_flag<my_formatter_flag>('*').set_pattern("[%n] [%*] [%^%l%$] %v");
-    spdlog::default_logger()->set_formatter(std::move(formatter));
+    spdlog::set_formatter(std::move(formatter));
 }
+

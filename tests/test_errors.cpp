@@ -27,6 +27,7 @@ TEST_CASE("default_error_handler", "[errors]]")
     prepare_logdir();
     spdlog::filename_t filename = SPDLOG_FILENAME_T(SIMPLE_LOG);
 
+<<<<<<< HEAD
 
     auto sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(filename, true);
     spdlog::logger logger("test-error", std::move(sink));
@@ -34,9 +35,20 @@ TEST_CASE("default_error_handler", "[errors]]")
     logger.info(fmt::runtime("Test message {} {}"), 1);
     logger.info("Test message {}", 2);
     logger.flush();
+=======
+    auto logger = spdlog::create<spdlog::sinks::basic_file_sink_mt>("test-error", filename, true);
+    logger->set_pattern("%v");
+#ifdef SPDLOG_USE_STD_FORMAT
+    logger->info("Test message {} {}", 1);
+#else
+    logger->info(fmt::runtime("Test message {} {}"), 1);
+#endif
+    logger->info("Test message {}", 2);
+    logger->flush();
+>>>>>>> v1.x
 
     using spdlog::details::os::default_eol;
-    REQUIRE(file_contents(SIMPLE_LOG) == fmt::format("Test message 2{}", default_eol));
+    REQUIRE(file_contents(SIMPLE_LOG) == spdlog::fmt_lib::format("Test message 2{}", default_eol));
     REQUIRE(count_lines(SIMPLE_LOG) == 1);
 }
 
@@ -52,7 +64,11 @@ TEST_CASE("custom_error_handler", "[errors]]")
     logger->set_error_handler([=](const std::string &) { throw custom_ex(); });
     logger->info("Good message #1");
 
+#ifdef SPDLOG_USE_STD_FORMAT
+    REQUIRE_THROWS_AS(logger->info("Bad format msg {} {}", "xxx"), custom_ex);
+#else
     REQUIRE_THROWS_AS(logger->info(fmt::runtime("Bad format msg {} {}"), "xxx"), custom_ex);
+#endif
     logger->info("Good message #2");
     require_message_count(SIMPLE_LOG, 2);
 }
@@ -89,7 +105,11 @@ TEST_CASE("async_error_handler", "[errors]]")
             ofs << err_msg;
         });
         logger->info("Good message #1");
+#ifdef SPDLOG_USE_STD_FORMAT
+        logger->info("Bad format msg {} {}", "xxx");
+#else
         logger->info(fmt::runtime("Bad format msg {} {}"), "xxx");
+#endif
         logger->info("Good message #2");
     }
     spdlog::details::os::sleep_for_millis(500);

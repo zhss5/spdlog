@@ -26,7 +26,7 @@ TEST_CASE("debug and trace w/o format string", "[macros]]")
     logger->flush();
 
     using spdlog::details::os::default_eol;
-    REQUIRE(ends_with(file_contents(TEST_FILENAME), fmt::format("Test message 2{}", default_eol)));
+    REQUIRE(ends_with(file_contents(TEST_FILENAME), spdlog::fmt_lib::format("Test message 2{}", default_eol)));
     REQUIRE(count_lines(TEST_FILENAME) == 1);
 
     spdlog::set_default_logger(logger);
@@ -36,7 +36,7 @@ TEST_CASE("debug and trace w/o format string", "[macros]]")
     logger->flush();
 
     require_message_count(TEST_FILENAME, 2);
-    REQUIRE(ends_with(file_contents(TEST_FILENAME), fmt::format("Test message 4{}", default_eol)));
+    REQUIRE(ends_with(file_contents(TEST_FILENAME), spdlog::fmt_lib::format("Test message 4{}", default_eol)));
 }
 
 TEST_CASE("disable param evaluation", "[macros]")

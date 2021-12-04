@@ -181,13 +181,19 @@ void binary_example()
 }
 
 // Log a vector of numbers
-
-#include "spdlog/fmt/bundled/ranges.h"
+#ifndef SPDLOG_USE_STD_FORMAT
+#    include "spdlog/fmt/bundled/ranges.h"
 void vector_example()
 {
     std::vector<int> vec = {1, 2, 3};
     spdlog::info("Vector example: {}", vec);
 }
+
+#else 
+void vector_example() {} 
+#endif
+
+// ! DSPDLOG_USE_STD_FORMAT
 
 // Compile time log levels.
 // define SPDLOG_ACTIVE_LEVEL to required level (e.g. SPDLOG_LEVEL_TRACE)
@@ -242,10 +248,14 @@ void multi_sink_example()
 struct my_type
 {
     int i;
-    template<typename OStream>
-    friend OStream &operator<<(OStream &os, const my_type &c)
+};
+
+template<>
+struct std::formatter<my_type> : std::formatter<std::string>
+{
+    auto format(my_type my, format_context &ctx)
     {
-        return os << "[my_type i=" << c.i << "]";
+        return formatter<string>::format(std::format("[my_type i={}]", my.i), ctx);
     }
 };
 
@@ -303,10 +313,9 @@ public:
 };
 
 void custom_formatter_flag_example()
-{    
+{
     auto formatter = make_unique<spdlog::pattern_formatter>("");
     formatter->add_flag<my_formatter_flag>('*').set_pattern("[%*] [%^%l%$] %v");
     spdlog::default_logger()->set_formatter(std::move(formatter));
     spdlog::info("Custom flag example");
 }
-

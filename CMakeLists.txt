@@ -26,9 +26,11 @@ endif()
 # Compiler config
 # ---------------------------------------------------------------------------------------
 if(NOT CMAKE_CXX_STANDARD)
-    set(CMAKE_CXX_STANDARD 11)
+    set(CMAKE_CXX_STANDARD 14)
     set(CMAKE_CXX_STANDARD_REQUIRED ON)
-endif()
+elseif(CMAKE_CXX_STANDARD LESS 14)
+    message(FATAL_ERROR "CMAKE_CXX_STANDARD should be 14 or higer")
+endif() 
 
 # make sure __cplusplus is defined when using msvc and enable parallel build
 if(MSVC)

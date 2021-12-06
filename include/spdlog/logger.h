@@ -193,7 +193,7 @@ public:
         memory_buf_t buf;
         details::os::wstr_to_utf8buf(wstring_view_t(msg.data(), msg.size()), buf);
         details::log_msg log_msg(log_time, loc, name_, lvl, string_view_t(buf.data(), buf.size()));
-        log_it_(log_msg, log_enabled, traceback_enabled);
+        sink_it_(log_msg);
     }
 
     void log(source_loc loc, level::level_enum lvl, wstring_view_t msg)
@@ -206,7 +206,7 @@ public:
         memory_buf_t buf;
         details::os::wstr_to_utf8buf(wstring_view_t(msg.data(), msg.size()), buf);
         details::log_msg log_msg(loc, name_, lvl, string_view_t(buf.data(), buf.size()));
-        log_it_(log_msg, log_enabled, traceback_enabled);
+        sink_it_(log_msg);
     }
 
     void log(level::level_enum lvl, wstring_view_t msg)
@@ -375,8 +375,7 @@ protected:
 #    endif
             memory_buf_t buf;
             details::os::wstr_to_utf8buf(wstring_view_t(wbuf.data(), wbuf.size()), buf);
-            details::log_msg log_msg(loc, name_, lvl, string_view_t(buf.data(), buf.size()));
-            // log_it_(log_msg, log_enabled, traceback_enabled);
+            details::log_msg log_msg(loc, name_, lvl, string_view_t(buf.data(), buf.size()));            
             sink_it_(log_msg);
         }
         SPDLOG_LOGGER_CATCH(loc)

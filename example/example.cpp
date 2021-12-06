@@ -6,6 +6,12 @@
 
 #include <cstdio>
 #include <chrono>
+#include <string>
+
+#include "spdlog/spdlog.h"
+#include "spdlog/default_formatter.h"
+#include "spdlog/pattern_formatter.h"
+#include "spdlog/cfg/env.h"  // support for loading levels from the environment variable
 
 void load_levels_example();
 void stdout_logger_example();
@@ -25,12 +31,6 @@ void udp_example();
 void custom_formatter_flag_example();
 void file_events_example();
 void replace_default_logger_example();
-
-#include "spdlog/spdlog.h"
-#include "spdlog/default_formatter.h"
-#include "spdlog/pattern_formatter.h"
-#include "spdlog/cfg/env.h"  // support for loading levels from the environment variable
-#include "spdlog/fmt/ostr.h" // support for user defined types
 
 using spdlog::details::make_unique; // for pre c++14
 
@@ -248,11 +248,13 @@ void multi_sink_example()
 struct my_type
 {
     int i = 0;
+    explicit my_type(int i): i(i){};
+        
 };
 
 namespace fmt_lib = spdlog::fmt_lib;
 template<>
-struct fmt_lib::formatter<my_type> : fmt_lib::formatter<char>
+struct fmt_lib::formatter<my_type> : fmt_lib::formatter<std::string>
 {
     auto format(my_type my, format_context &ctx)
     {   

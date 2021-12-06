@@ -30,17 +30,6 @@ addons: &gcc11
     sources:
       - ubuntu-toolchain-r-test
 
-
-# Clang 3.5
-addons: &clang35
-  apt:
-    packages:
-      - clang-3.5
-    sources:
-      - ubuntu-toolchain-r-test
-      - llvm-toolchain-precise-3.5
-      
-
 addons: &clang10
   apt:
     packages:
@@ -80,10 +69,6 @@ matrix:
       dist: bionic
       addons: *gcc11
       
-    # Test clang-3.5: C++14, Build=Release
-    - env: CLANG_VERSION=3.5 BUILD_TYPE=Release CPP=14
-      os: linux
-      addons: *clang35
 
     # Text osx
     - env: BUILD_TYPE=Release CPP=14 ASAN=Off TSAN=Off

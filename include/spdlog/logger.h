@@ -185,9 +185,7 @@ public:
 
     void log(log_clock::time_point log_time, source_loc loc, level::level_enum lvl, wstring_view_t msg)
     {
-        bool log_enabled = should_log(lvl);
-        bool traceback_enabled = tracer_.enabled();
-        if (!log_enabled && !traceback_enabled)
+        if (!should_log(lvl))
         {
             return;
         }
@@ -200,9 +198,7 @@ public:
 
     void log(source_loc loc, level::level_enum lvl, wstring_view_t msg)
     {
-        bool log_enabled = should_log(lvl);
-        bool traceback_enabled = tracer_.enabled();
-        if (!log_enabled && !traceback_enabled)
+        if (!should_log(lvl))
         {
             return;
         }

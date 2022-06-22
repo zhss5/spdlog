@@ -549,6 +549,10 @@ SPDLOG_INLINE bool create_dir(const filename_t &path)
     {
         return false;
     }
+    
+    bool bnetwork_drive = false;
+    if (path[0] == '\\')
+        bnetwork_drive = true;
 
     size_t search_offset = 0;
     do
@@ -564,7 +568,8 @@ SPDLOG_INLINE bool create_dir(const filename_t &path)
 
         if (!subdir.empty() && !path_exists(subdir) && !mkdir_(subdir))
         {
-            return false; // return error if failed creating dir
+           if(bnetwork_drive == false )
+              return false; // return error if failed creating dir
         }
         search_offset = token_pos + 1;
     } while (search_offset < path.size());
